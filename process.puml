@@ -1,0 +1,61 @@
+@startuml ugc
+!theme cerulean-outline
+
+skinparam sequence {
+    MaxMessageSize 2
+    MessageAlign center
+}
+
+actor "Пользователь" as user 
+component "Балансироващик" as balancer
+
+
+component "Content process" as content_process {
+    component "Content-Service" as content_service
+    database "ElasticSearch" as elastic
+}
+
+component "Admin process" as admin_process {
+    actor "Администратор" as admin
+    component "Admin-сервис" as admin_panel
+}
+
+component "Content ETL process" as content_etl_process {
+    database "Movie-db" as movie_db 
+    component "Content ETL" as etl 
+}
+
+component "Analyze ETL process" as analyze_etl_process {
+    database "OLAP" as olap
+    component "Data analyze ETL" as analyze_etl
+    actor "Аналитик" as analyst 
+}
+
+component "Analyze Process" as analyze_process {
+    component "Analyze-Service" as analyze_api
+    database "Kafka" as kafka
+}
+
+
+user -right-> balancer: Запрос на просмотр контента
+
+balancer --> analyze_process
+analyze_process -> analyze_api
+analyze_api -> analyze_api: Проверка токена
+analyze_api --> kafka: Запись событий пользователей
+
+analyze_etl -up-> kafka
+analyze_etl --> olap 
+analyst --> olap: Анализ данных
+
+balancer --> content_process
+content_process -> content_service
+content_service -> content_service: Проверка токена
+content_service -down-> elastic
+admin -right-> admin_panel: Редактирование данных
+admin_panel -up-> movie_db 
+
+etl -> movie_db 
+content_etl_process -up-> elastic
+
+@enduml
