@@ -7,55 +7,40 @@ skinparam sequence {
 }
 
 actor "Пользователь" as user 
-component "Балансироващик" as balancer
+actor "Администратор" as admin
+actor "Аналитик" as analyst 
 
+component "Admin-сервис" as admin_panel
+component "Auth-сервис" as auth_service
 
-component "Content process" as content_process {
+node "Content" {
     component "Content-Service" as content_service
+    component "Content ETL" as content_etl 
     database "ElasticSearch" as elastic
-}
-
-component "Admin process" as admin_process {
-    actor "Администратор" as admin
-    component "Admin-сервис" as admin_panel
-}
-
-component "Content ETL process" as content_etl_process {
     database "Movie-db" as movie_db 
-    component "Content ETL" as etl 
 }
 
-component "Analyze ETL process" as analyze_etl_process {
+node "Analyze" as analyze_etl_process {
     database "OLAP" as olap
     component "Data analyze ETL" as analyze_etl
-    actor "Аналитик" as analyst 
-}
-
-component "Analyze Process" as analyze_process {
     component "Analyze-Service" as analyze_api
     database "Kafka" as kafka
 }
 
-
-user -right-> balancer: Запрос на просмотр контента
-
-balancer --> analyze_process
-analyze_process -> analyze_api
-analyze_api -> analyze_api: Проверка токена
+user --> analyze_api
+analyze_api --> analyze_api: Проверка токена
 analyze_api --> kafka: Запись событий пользователей
 
-analyze_etl -up-> kafka
+analyze_etl --> kafka
 analyze_etl --> olap 
 analyst --> olap: Анализ данных
 
-balancer --> content_process
-content_process -> content_service
-content_service -> content_service: Проверка токена
-content_service -down-> elastic
-admin -right-> admin_panel: Редактирование данных
-admin_panel -up-> movie_db 
+user --> content_service
+content_service --> content_service: Проверка токена
+content_service --> elastic
+admin --> admin_panel: Редактирование данных
+admin_panel --> movie_db 
 
-etl -> movie_db 
-content_etl_process -up-> elastic
-
+content_etl --> movie_db 
+content_etl --> elastic 
 @enduml
