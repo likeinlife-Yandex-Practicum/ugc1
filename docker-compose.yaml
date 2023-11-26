@@ -18,14 +18,17 @@ services:
     build:
       context: event_etl
     container_name: 'event_etl'
-    restart: unless-stopped
     depends_on:
       kafka:
         condition: service_healthy
       clickhouse-node1:
         condition: service_healthy
     env_file:
-      - .env
+      - "sample.env"
+    environment:
+      - KAFKA_HOST=${KAFKA_HOST:-kafka}
+      - KAFKA_PORT=${KAFKA_PORT:-9092}
+      - CLICKHOUSE_HOST=${CLICKHOUSE_HOST:-clickhouse-node1}
 
   ch-zookeeper:
     image: zookeeper:3.8
@@ -108,9 +111,9 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:9093
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-      KAFKA_CREATE_TOPICS: "views:1:1"
+      KAFKA_CREATE_TOPICS: "click:1:1, page_view:1:1, video_resolution_change:1:1, search_filter_use:1:1"
     healthcheck:
-      test: nc -z localhost 9092 || exit -1
+      test: nc -z localhost 9092 || exit 1
       start_period: 15s
       interval: 5s
       timeout: 10s

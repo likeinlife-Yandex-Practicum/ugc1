@@ -1,16 +1,26 @@
-FROM python:3.10.13-alpine3.17
+
+FROM python:3.10.13-alpine3.17 as base
 
 WORKDIR /opt/app
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-COPY requirements.txt requirements.txt
+FROM base as builder
 
-RUN pip install --upgrade pip --no-cache-dir \
-    && pip install -r requirements.txt --no-cache-dir \
-    && mkdir logs/
+COPY pyproject.toml poetry.lock ./
+
+RUN pip install poetry
+RUN poetry export -f requirements.txt >> requirements.txt
+
+FROM base as final
+
+COPY --from=builder /opt/app/requirements.txt requirements.txt
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-ENTRYPOINT ["python3", "main.py"]
+RUN chmod +x docker-entrypoint.sh
+
+CMD ["./docker-entrypoint.sh"]

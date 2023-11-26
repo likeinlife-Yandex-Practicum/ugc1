@@ -1,0 +1,40 @@
+[
+    {
+        "name": "click",
+        "topic": "click",
+        "fields": [
+            {"name": "user_id", "type": "UUID"},
+            {"name": "element", "type": "String"},
+            {"name": "timestamp", "type": "Datetime"}
+        ]
+    },
+    {
+        "name": "page_view",
+        "topic": "page_view",
+        "fields": [
+            {"name": "user_id", "type": "UUID"},
+            {"name": "page", "type": "String"},
+            {"name": "timestamp", "type": "Datetime"}
+        ]
+    },
+    {
+        "name": "video_resolution_change",
+        "topic": "video_resolution_change",
+        "fields": [
+            {"name": "user_id", "type": "UUID"},
+            {"name": "from", "type": "String"},
+            {"name": "to", "type": "String"},
+            {"name": "timestamp", "type": "Datetime"}
+        ]
+    },
+    {
+        "name": "search_filter_use",
+        "topic": "search_filter_use",
+        "fields": [
+            {"name": "user_id", "type": "UUID"},
+            {"name": "filter", "type": "String"},
+            {"name": "filter_value", "type": "String"},
+            {"name": "timestamp", "type": "Datetime"}
+        ]
+    }
+]

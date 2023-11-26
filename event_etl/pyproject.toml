@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "src"
+version = "0.1.0"
+description = ""
+authors = ["likeinlife <likeinlife48@yandex.ru>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+backoff = "^2.2.1"
+clickhouse-driver = "^0.2.6"
+pydantic = "^2.5.2"
+pydantic-settings = "^2.1.0"
+
+[tool.poetry.dev-dependencies]
+ruff = "^0.1.6"
+mypy = "^1.7.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+plugins = [
+  "pydantic.mypy"
+]
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 120
+select = ["D", "B"]
+ignore = ["D100", "D107", "D101", "D106", "D103", "D104", "D102"]
+
+
