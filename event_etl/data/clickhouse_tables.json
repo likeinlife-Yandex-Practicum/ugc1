@@ -9,6 +9,15 @@
         ]
     },
     {
+        "name": "video_finish",
+        "topic": "video_finish",
+        "fields": [
+            {"name": "user_id", "type": "UUID"},
+            {"name": "video_id", "type": "UUID"},
+            {"name": "timestamp", "type": "Datetime"}
+        ]
+    },
+    {
         "name": "page_view",
         "topic": "page_view",
         "fields": [
