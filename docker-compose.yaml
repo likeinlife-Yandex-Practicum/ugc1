@@ -2,17 +2,29 @@ version: '3.5'
 
 services:
 
-  event_api:
+  ugc_api:
     build:
-      context: event_api
-    container_name: 'event_api'
+      context: ./ugc
+    container_name: 'ugc-api'
     depends_on:
       kafka:
         condition: service_healthy
-    env_file:
-      - .env
-    expose:
-      - 8080
+    environment:
+      - KAFKA_HOST=${KAFKA_HOST:-kafka}
+      - KAFKA_PORT=${KAFKA_PORT:-9092}
+      - RSA_PUBLIC_PATH=/run/secrets/rsa_public
+    secrets:
+      - rsa_public
+
+  nginx:
+    image: nginx:stable
+    container_name: nginx
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - ugc_api
 
   event_etl:
     build:
@@ -132,3 +144,7 @@ services:
       KAFKA_CLUSTERS_0_NAME: "local"
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka:9092"
       KAFKA_CLUSTERS_0_ZOOKEEPER: "zookeeper:2181"
+
+secrets:
+  rsa_public:
+    file: ./ugc/keys/rsa.pub
