@@ -1,3 +1,21 @@
+# Описание
+
+UGC-сервис для сбора пользовательских действий и дальнейшей аналитики.
+
+## Авторы
+* [@likeinlife](https://github.com/likeinlife)
+* [@maxim-zaitsev](https://github.com/maxim-zaitsev)
+* [@yandexwork](https://github.com/yandexwork)
+
+# Запуск/остановка
+- make up - запуск
+- make down - удалить созданные контейнеры
+- make downv - удалить созданные контейнеры, включая volumes
+
+# Адрес
+- общий: http://localhost
+- openapi: http://localhost/api/openapi
+
 # Сущности
 1. Клики: пользователь(id), элемент, timestamp
 2. Просмотр страниц: пользователь(id), страница, сколько времени проведено, timestamp
