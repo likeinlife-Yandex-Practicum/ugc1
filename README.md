@@ -12,6 +12,10 @@ UGC-сервис для сбора пользовательских действ
 - make down - удалить созданные контейнеры
 - make downv - удалить созданные контейнеры, включая volumes
 
+# Тестирование
+1. `cd tests`
+2. `make test`
+
 # Адрес
 - общий: http://localhost
 - openapi: http://localhost/api/openapi
