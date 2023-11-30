@@ -1,0 +1,105 @@
+version: '3.5'
+
+services:
+  tests:
+    build:
+      context: .
+    depends_on:
+      - api
+      - etl
+    command: '-s'
+    environment:
+      - KAFKA_HOST=${KAFKA_HOST:-kafka}
+      - KAFKA_PORT=${KAFKA_PORT:-9092}
+      - CLICKHOUSE_HOST=${CLICKHOUSE_HOST:-clickhouse}
+      - CLICKHOUSE_DATABASE=${CLICKHOUSE_DATABASE:-analytics}
+      - API_ROOT_URL=${API_ROOT_URL:-http://api:8000}
+      - RSA_PRIVATE_PATH=/run/secrets/rsa_private
+    secrets:
+      - rsa_private
+
+  api:
+    build:
+      context: "../ugc"
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      - KAFKA_HOST=${KAFKA_HOST:-kafka}
+      - KAFKA_PORT=${KAFKA_PORT:-9092}
+      - RSA_PUBLIC_PATH=/run/secrets/rsa_public
+    secrets:
+      - rsa_public
+
+  etl:
+    build:
+      context: "../event_etl"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+    environment:
+      - KAFKA_HOST=${KAFKA_HOST:-kafka}
+      - KAFKA_PORT=${KAFKA_PORT:-9092}
+      - CLICKHOUSE_HOST=${CLICKHOUSE_HOST:-clickhouse}
+      - CLICKHOUSE_DATABASE_NAME=${CLICKHOUSE_DATABASE_NAME:-analytics}
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:23
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - ./clickhouse_config:/etc/clickhouse-server
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8123/ping || exit 1
+
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,OUTSIDE://0.0.0.0:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,OUTSIDE://localhost:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CREATE_TOPICS: "click:1:1, page_view:1:1, video_resolution_change:1:1, search_filter_use:1:1, video_finish:1:1"
+    healthcheck:
+      test: nc -z localhost 9092 || exit 1
+      start_period: 15s
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    volumes:
+      - kafka_data:/etc/kafka
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: "local"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka:9092"
+      KAFKA_CLUSTERS_0_ZOOKEEPER: "zookeeper:2181"
+
+secrets:
+  rsa_public:
+    file: ./keys/rsa.pub
+  rsa_private:
+    file: ./keys/rsa.private
+
+volumes:
+  kafka_data:

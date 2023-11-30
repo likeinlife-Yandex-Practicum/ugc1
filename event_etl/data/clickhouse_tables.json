@@ -13,7 +13,7 @@
         "topic": "video_finish",
         "fields": [
             {"name": "user_id", "type": "UUID"},
-            {"name": "video_id", "type": "UUID"},
+            {"name": "film_id", "type": "UUID"},
             {"name": "timestamp", "type": "Datetime"}
         ]
     },
@@ -31,8 +31,8 @@
         "topic": "video_resolution_change",
         "fields": [
             {"name": "user_id", "type": "UUID"},
-            {"name": "from", "type": "String"},
-            {"name": "to", "type": "String"},
+            {"name": "from_resolution", "type": "String"},
+            {"name": "to_resolution", "type": "String"},
             {"name": "timestamp", "type": "Datetime"}
         ]
     },
