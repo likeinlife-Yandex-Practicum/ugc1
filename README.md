@@ -2,10 +2,25 @@
 
 UGC-сервис для сбора пользовательских действий и дальнейшей аналитики.
 
-## Авторы
+# Авторы
 * [@likeinlife](https://github.com/likeinlife)
 * [@maxim-zaitsev](https://github.com/maxim-zaitsev)
 * [@yandexwork](https://github.com/yandexwork)
+
+# Вклад @likeinlife
+
+- ETL Kafka -> Clickhouse
+- Kafka, Apache Spark research
+- Tests
+
+# Вклад @maxim-zaitsev
+
+- docker-compose file
+- Clickhouse, Vertica research
+
+# Вклад @yandexwork
+
+- UGC API
 
 # Запуск/остановка
 - make up - запуск
